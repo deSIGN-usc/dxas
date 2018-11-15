@@ -1,0 +1,418 @@
+<!doctype html>
+<html ng-app="myapp">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>HW8</title>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.css">
+        <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+        <script type="text/javascript" async src="https://platform.twitter.com/widgets.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-validator/0.5.3/js/bootstrapValidator.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-touch.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-animate.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-aria.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-messages.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-svg-round-progressbar/0.4.8/roundProgress.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.js"></script>
+        <script src="moment.js"></script>
+        <script src="script.js"></script>
+    
+        <script>
+            angular.module("myapp", ['ngAnimate', 'ngMaterial', 'angular-svg-round-progressbar']).controller("mainController", mainController);
+            $( document ).ready(function() {
+                $('#searchForm').bootstrapValidator({
+                    trigger: 'blur keyup',
+                    fields: {
+                        keyword: {
+                            validators: {
+                                notEmpty: {
+                                    message: 'Please enter a keyword.'
+                                }
+                            }
+                        },
+                        inputloc:  {
+                            validators: {
+                                notEmpty: {
+                                    message: 'Please enter a location.'
+                                }
+                            }
+                        }
+                    }
+                })  
+            }); 
+        
+        </script>
+ 
+        <style>
+        #tooltip{
+            z-index: 1000;
+            position: relative;
+            top:0;
+            left:0;
+            display:none;
+            width: 200px;
+            height: 35px;
+            line-height: 35px;
+            background-color:#eee;
+        }
+        .fade {
+            opacity: 1;
+        } 
+        .fade.ng-enter {
+            transition: 1s linear all; /* 当使用css transition实现动画效果时，在开始时的样式中必须包含transition的设置 */
+            opacity: 0;
+        }
+        /* 结束时的样式 */
+        .fade.ng-enter.ng-enter-active {
+            opacity: 1;
+        }
+        .fade.ng-leave {
+            transition: 1s linear all; /* 当使用css transition实现动画效果时，在开始时的样式中必须包含transition的设置 */
+            opacity: 1;
+        }
+        /* 结束时的样式 */
+        .fade.ng-leave.ng-leave-active {
+            opacity: 0;
+        }
+        .tooltip{
+            z-index: 1000;
+            position: relative;
+            top:0;
+            left:0;
+            display:none;
+            width: 200px;
+            height: 35px;
+            line-height: 35px;
+            background-color:#eee;
+        }
+        </style>
+    </head>
+    <body ng-controller="mainController" ng-init="init()"> 
+     
+        <div class="container" style="background-color:#f9f9f9;border:solid 1px">    
+            <form id='searchForm' class="form-horizontal">
+                
+                <div class="form-group title">
+                    <h3 style="text-align:center"> Entertainment Event Tickets Search </h3>
+                </div>
+                <div  class="form-group row">
+                  
+                    <label for="keyword" class="col-sm-2 left-margin-lbl input-sm" >Keyword <span style="color:red">*</span></label>
+                    <div class="col-sm-6">
+                      <input placeholder = "Enter Artist, Team or Event Name (eg. Lakers)"type="text" class="form-control input-sm" id="keyword" name="keyword" ng-model='keyword' ng-change='searchValidation()'>
+                    </div>
+                   
+                    
+                </div>
+                <div class="form-group row">
+                        <label class="col-sm-2 left-margin-lbl input-sm" for="category">Category</label>
+                        <div class="col-sm-3">
+                            <select class="form-control input-sm" id="category" ng-model="whaa">
+                                <option value="">All</option>
+                                <option value="KZFzniwnSyZfZ7v7nJ">Music</option>
+                                <option value="KZFzniwnSyZfZ7v7nE">Sports</option>
+                                <option value="KZFzniwnSyZfZ7v7na">Arts & Theatre</option>
+                                <option value="KZFzniwnSyZfZ7v7nn">Film</option>
+                                <option value="KZFzniwnSyZfZ7v7n1">Miscellaneous</option>
+                            </select>
+                        </div>
+                    </div>
+                 
+                    <div class="form-group row">
+                        <label for="distance" class="col-sm-2 left-margin-lbl input-sm" >Distance (miles)</label>
+                        <span class="col-sm-2">         
+                            <input class="form-control input-sm" type="text" id="distance" placeholder="10" name="distance">
+                        </span>
+                        <span>
+                            <select class="form-control input-sm" id="units" ng-model="sasa">
+                                <option value="miles">Miles</option>
+                                <option value="km">Kilometers</option>
+                            </select>
+                        </span>
+                    </div>
+                    <div class="form-group row">
+                        <label for="from" class="col-sm-2 left-margin-lbl input-sm" >From <span style="color:red">*</span></label>
+                        <div class="col-sm-5">
+                            <div class="radio">
+                                <input type="radio" name="from" id="here" ng-click="currentloc();" ng-checked='here'><label class="input-sm"><b>Current location</b></label><br>
+                                <input type="radio" name="from" id="location" ng-click="manualloc();" ng-checked='locationval'><label class="input-sm"><b>Other, Please specify:</b></label>
+                            </div>
+                            <input class="form-control input-sm" type="text" id="inputloc" name="inputloc" ng-disabled='locval' placeholder="Enter a location" ng-model='inputloc' ng-change='searchValidation()'>
+                        </div>
+                    </div>
+                    <input type="hidden" name="lat" id="lat" value="" ng-model='hlat'>
+                    <input type="hidden" name="lon" id="lon" value="" ng-model='hlng'>
+                    <div class="form-group row">
+                        <div class="col-sm-3 left-margin-btn">
+                            <button type="button" name="submit" value="Search" id='search' class="btn btn-info" onClick='getRes(this.form)' ng-disabled='searchval'>
+                                <span class="glyphicon glyphicon-search"></span> Search
+                            </button>
+                            <button type="reset" name="clear" class="btn btn-default" ng-click='clearForm(this.form)' onClick='clearJS(this.form)'>Clear</button>        
+                        </div>
+                    </div>
+            </form>
+            </div>
+            <div id="everything">   
+                <ul class="nav nav-pills" style="text-align:center">
+                    <li class="active" id='results-tab'>
+                        <a href="#results" data-toggle="tab" ng-click='displayRes()'>Results</a>
+                    </li>
+                    <li id='favorite-tab'>
+                        <a href="#favorite" data-toggle="tab" ng-click='displayFav()'>Favorites</a>
+                    </li>
+                </ul>
+                <div class="tab-content clearfix" >
+                    <div class="tab-pane active parallex" id="results">
+                        <div class="alert alert-warning" ng-show='warning' id='warning' ng-class="ngIncludeItemRight ? 'ngIncludeItemRight' : ''">
+                            No records.
+                        </div>
+                        <div class="alert alert-danger" ng-show='danger' id='danger' ng-class="ngIncludeItemRight ? 'ngIncludeItemRight' : ''">
+                            Failed to get search results.
+                        </div>
+                        <div ng-show="resval" ng-class="ngIncludeItemRight ? 'ngIncludeItemRight' : ''">
+                            <button type="button" class="btn btn-default btn-sm pull-right details" ng-disabled='details' ng-click='setInformation(placeid)'>
+                                Details<span class="glyphicon glyphicon-chevron-right"></span>
+                            </button>
+                            <br>
+                            <div class='table-overflow-x'>
+                                <table class='table-hover table-overflow-x'>
+                                    <thead>
+                                        <th>#</th>
+                                        <th>Date</th>
+                                        <th>Event</th>
+                                        <th>Catagory</th>
+                                        <th>Venue Info</th>
+                                        <th>Favorite</th>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in myData" ng-attr-id="{{ x.id }}">
+                                            <td>{{ $index + 1 }}</td>
+                                            <td>{{ x.dates.start.localDate }} </td>
+                                            <td id="boxis">
+                                                <a id = "{{x.id}}_tt" href="" ng-click='moveToDetails(x)'>
+                                                    {{ gao(x.name) }}
+                                                        <md-tooltip md-direction="'right'">{{x.name}}</md-tooltip>
+                                                </a>
+                                            </td>
+                                            <td>{{ x.classifications[0].genre.name }}-{{ x.classifications[0].segment.name }}</td>
+                                            <td>{{ x._embedded.venues[0].name }}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-default btn-sm btn-res"  ng-click='changeStar1(x.id)'>
+                                                    <span ng-class="favIcons[$index] ? 'glyphicon glyphicon-star' : 'glyphicon glyphicon-star-empty'" ng-attr-id="fav_{{ x.id }}"></span>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div id="tooltip"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id='info' ng-show="infoval" ng-class="ngIncludeItemRight ? 'ngIncludeItemLeft' : ''">
+                        <div class='detail-name' style="text-align: center"><b>{{ eventSave.name }}</b></div>               
+                        <div>
+                            <table>
+                            <tr>
+                            <button type="button" class="btn btn-default btn-sm" id='details' ng-click='backToResults()'>
+                                <span class="glyphicon glyphicon-chevron-left"></span>List
+                            </button>
+                            <a class="btn-move-right" href='{{ twitter_url }}'><img class='icons' src='http://csci571.com/hw/hw8/Images/Twitter.png' ng-disabled='twitter_btn'></img></a>
+                            <button type="button" class="btn btn-default btn-sm" ng-disabled='favorite_btn'  ng-click='changeStar2()'>
+                                <span id="insstar" ng-class="favoriteStar ? 'glyphicon glyphicon-star' : 'glyphicon glyphicon-star-empty'"></span>
+                            </button>
+                        </tr>
+                        </table>
+                        </div>
+                        <div class="right-tabs clearfix">
+                            <ul class="nav nav-tabs">
+                                <li class="active" id='tab_event'><a data-toggle="tab" href="#home">Event</a></li>
+                                <li id='tab_art'><a data-toggle="tab" href="#artist">Artist/Teams</a></li>
+                                <li id='tab_venue'><a data-toggle="tab" href="#venueTab">Venue</a></li>
+                                <li id='tab_upc'><a data-toggle="tab" href="#upcoming">UpcomingEvents</a></li>
+                            </ul>
+                            <div class="tab-content">
+                                <div id="home" class="tab-pane fade in active table-overflow-x">
+                                    <table class='table-detail'>
+                                        <tr id='det_artist' ng-show = 'det_artist'>
+                                        </tr>
+                                        <tr id='det_venue' ng-show = 'det_venue'>
+                                        </tr>
+                                        <tr id='det_time' ng-show = 'det_time'>
+                                        </tr>
+                                        <tr id='det_category' ng-show = 'det_category'>
+                                        </tr>
+                                        <tr id='det_price' ng-show = 'det_price'>
+                                        </tr>
+                                        <tr id='det_ticket' ng-show = 'det_ticket'>
+                                        </tr>
+                                        <tr id='det_buy' ng-show = 'det_buy'>
+                                        </tr>
+                                        <tr id='det_seat' ng-show = 'det_seat'>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div id="artist" class="tab-pane fade">
+                                    <div class="alert alert-warning alert-full-width" ng-show='photos_none' id='photos_none'>
+                                        No records.
+                                    </div>  
+                                    <div id="coming">
+                                        
+                                    </div>                   
+                                </div>
+                                <div id="venueTab" class="tab-pane fade">
+                                    <table class='table-detail' style="margin-bottom:50px">
+                                        <th id='ven_header' ng-show = 'ven_header' style="text-align: center" colspan="2">
+                                        </th>
+                                        <tr id='ven_address' ng-show = 'ven_address'>
+                                        </tr>
+                                        <tr id='ven_city' ng-show = 'ven_city'>
+                                        </tr>
+                                        <tr id='ven_phone' ng-show = 'ven_phone'>
+                                        </tr>
+                                        <tr id='ven_open' ng-show = 'ven_open'>
+                                        </tr>
+                                        <tr id='ven_general_rule' ng-show = 'ven_general_rule'>
+                                        </tr>
+                                        <tr id='ven_child_rule' ng-show = 'ven_child_rule'>
+                                        </tr>
+                                        <tr id='maps' ng-show='maps' style="height:500px">
+                                            <td id="swmap" colspan="2"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div id="upcoming" class="tab-pane">
+                                    <form class="form-inline">
+                                        <span>
+                                        <select id="upc_category" ng-model="sorttype" ng-change="update_order()">
+                                            <option value='default' checked>Default</option>
+                                            <option value='name'>Display Name</option>
+                                            <option value='artist'>Artist</option>
+                                            <option value='date'>Date Name</option>
+                                            <option value='type'>Type</option>
+                                        </select>
+                                        </span>
+                                        <span>
+                                        <select id="sort_order" ng-model="sortorder" ng-disabled="(sorttype==='default')" ng-change="update_order()" >
+                                            <option value='asc'>Ascending</option>
+                                            <option value='dsc'>Descending</option>
+                                        </select>
+                                        </span>
+                                    </form>
+                                    <div class="alert alert-warning alert-full-width" ng-show='noupc_warning' id='noupc_warning'>
+                                        No records.
+                                    </div>
+                                    <table id="comi_first" style="margin-bottom: 0px">
+                                            <tr ng-repeat="x in upc_event_show_1" class="container" style='margin-top:1%;padding-top: 2%;border: solid 1px' >
+                                                <td>
+                                                    <p><a href='{{x.uri}}'><span style="color:royalblue">{{x.displayName}}</span></a></p>
+                                                    <p>
+                                                        <span style="color: orange">Artist: {{x.performance[0].displayName}}</span>
+                                                        <span style="color:grey"> {{x.correctTime}}</span>
+                                                    </p>
+                                                    <p>Type: {{x.type}}</p>
+                                                </td>
+                                            </tr>
+                                    </table>
+                                    <table class="fade" id="comi_second" ng-if='nomoreshow==false' style="margin-top: 0px; border-top: none" >
+                                        <tr ng-repeat="x in upc_event_show_2" class="container" style='margin-top:1%;padding-top: 2%;border: solid 1px' >
+                                            <td>
+                                                <p><a href='{{x.uri}}'><span style="color:royalblue">{{x.displayName}}</span></a></p>
+                                                <p>
+                                                    <span style="color: orange">Artist: {{x.performance[0].displayName}}</span>
+                                                    <span style="color:grey"> {{x.correctTime}}</span>
+                                                </p>
+                                                <p>Type: {{x.type}}</p>
+                                            </td>
+                                        </tr>
+                                   </table>
+                                    <div style="text-align: center">
+                                        <button id="hahaha" class="btn btn-info" value="1" ng-click="showmoreupc()">show more</button>
+                                    </div>
+                                    <br><br>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="favorite" class="tab-pane">
+                    <div ng-show='favval'>
+                            <div class="alert alert-warning alert-partial-width" ng-show='fav_warning' id='fav_warning'>
+                                    No records.
+                            </div>
+                    </div>
+                </div>
+            </div>
+            <div class="progress" ng-show='progressbar' id='progress' style="margin-top:2%;margin-left:10%;height:15px;width:80%;">
+              <div class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </body>
+        <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAfIgNHK1qi0gwVevFDlC67u-_CWuObr1A&callback=initMap">
+        </script>
+    </html>
+     <!--
+     
+     <!DOCTYPE html>
+     <html lang="en">
+     <head>
+         <meta charset="UTF-8">
+         <title> tooltip</title>
+         <style type="text/css">
+             #box{
+                 margin-left: 300px;
+                 width: 500px;
+                 height:500px;
+                 background-color:lightblue;
+               }
+             #tooltip{
+                 z-index: 1000;
+                 position: relative;
+                 top:0;
+                 left:0;
+                 display:none;
+                 width: 200px;
+                 height: 35px;
+                 line-height: 35px;
+                 background-color:#eee;
+             }
+         </style>
+     </head>
+      
+     <body>
+     <div id="box">
+         <p>鼠标快过来呀</p>
+         <div id="tooltip">~\(≧▽≦)/~啦啦啦</div>
+     </div>
+     </body>
+      
+     <script type="text/javascript">
+     var box = document.getElementById('box')
+     var tooltip = document.getElementById('tooltip')
+      
+     box.onmousemove = function(e){
+         e = e ? e : window.event
+         var x = e.clientX - box.offsetLeft
+         var y = e.clientY - box.clientTop
+      
+         tooltip.style.display = "block"
+         tooltip.style.left = x + "px"
+         tooltip.style.top = y + "px"
+     }
+     box.onmouseout = function () {
+         tooltip.style.display = "none"
+     }
+     </script>
+     </html>
+     
+     -->
+<!--
+
+    
+    
+                   
+-->

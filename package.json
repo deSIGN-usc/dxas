@@ -1,0 +1,19 @@
+{
+  "name": "hw8",
+  "version": "0.0.0",
+  "description": "hw8",
+  "main": "server.js",
+  "author": "wtl",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "method-override": "~2.1.2",
+    "moment": "^2.21.0",
+    "morgan": "^1.9.1",
+    "request": "^2.88.0",
+    "spotify-web-api-node": "^4.0.0"
+  },
+  "devDependencies": {
+    "@angular/cli": "^1.7.3"
+  }
+}
